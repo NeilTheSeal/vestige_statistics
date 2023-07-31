@@ -1,9 +1,10 @@
-let total_kc = 0;
-const number_of_players = 1000000;
-const kc_array = [];
-const rarity = 1 / 1000;
-const rolls_required = 3;
+let total_kc = 0; // The total number of kills by all players combined
+const number_of_players = 1000000; // Sample size
+const kc_array = []; // An array where each element is the number of kills it took for a player to get the vestige
+const rarity = 1 / 1000; // Combined "rarity" of the vestige drop
+const rolls_required = 3; // Number of "successes" required to get the vestige drop
 
+// First, we calculate how many kc it took to get the vestige for 1,000,000 players
 for(let i = 0; i < number_of_players; i++) {
   let kc = 0;
   let successes = 0;
@@ -18,14 +19,17 @@ for(let i = 0; i < number_of_players; i++) {
   kc_array.push(kc)
 }
 
+// Mean drop rate of vestige
 const mean = total_kc / number_of_players;
 
+// Sort the kc_array from smallest to largest kc
 kc_array.sort(function(a,b) {
   return a - b;
 });
 
 const bar_chart = [];
 
+// Create a 2-dimensional array of the format [[kc, number of players], [kc, number of players], [kc, number of players] ...]. Note that the "number of players" is the number of players that got between the last element and next element. For example, the element [...[10, 393],...] would mean that 393 players took between 10 and 20 kc to get the drop. In this sense, it is like a bar chart. Hence the "bar_chart" variable
 for(let kc = 0; kc < kc_array[kc_array.length - 1]; kc += 10) {
   let count = 0;
   for(let i = 0; i < kc_array.length; i++) {
@@ -37,7 +41,10 @@ for(let kc = 0; kc < kc_array[kc_array.length - 1]; kc += 10) {
   bar_chart.push([kc + 10, count])
 }
 
+// Maximum x-value for the plot
 const max_x = Math.ceil(kc_array[kc_array.length - 1] / 1000) * 1000;
+
+// Calculate maximum y-value for the plot
 let max_y = 0;
 for(let i = 0; i < bar_chart.length; i++) {
   const y = bar_chart[i][1];
@@ -52,6 +59,7 @@ const percent5 = 0.99;
 
 let num1, num2, num3, num4, num5;
 
+// Calculate the kill count required for a certain percentage of the players. E.g. 50% of players got the drop before 895 kc
 let count = 0;
 for(let i = 0; i < bar_chart.length; i++) {
   const bar = bar_chart[i];
@@ -78,6 +86,7 @@ for(let i = 0; i < bar_chart.length; i++) {
 
 console.log(`50% : ${num1}\n75% : ${num2}\n90% : ${num3}\n95% : ${num4}\n99% : ${num5}`);
 
+// Everything from here down is code to draw the plot using the P5.js library. https://p5js.org/
 function setup() {
   createCanvas(1000, 700);
   background(250);
